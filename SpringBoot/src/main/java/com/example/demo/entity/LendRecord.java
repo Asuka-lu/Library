@@ -8,7 +8,6 @@ import lombok.Data;
 import java.util.Date;
 
 @TableName("lend_record")
-@Data
 public class LendRecord {
     private Integer readerId;
     private String isbn;
@@ -20,4 +19,75 @@ public class LendRecord {
     private String status;
     private Integer borrownum;
 
+    @Override
+    public String toString() {
+        return "LendRecord{" +
+                "readerId=" + readerId +
+                ", isbn='" + isbn + '\'' +
+                ", bookname='" + bookname + '\'' +
+                ", lendTime=" + lendTime +
+                ", returnTime=" + returnTime +
+                ", status='" + status + '\'' +
+                ", borrownum=" + borrownum +
+                '}';
+    }
+
+    public LendRecord() {
+    }
+
+    public Integer getReaderId() {
+        return readerId;
+    }
+
+    public void setReaderId(Integer readerId) {
+        this.readerId = readerId;
+    }
+
+    public String getIsbn() {
+        return isbn;
+    }
+
+    public void setIsbn(String isbn) {
+        this.isbn = isbn;
+    }
+
+    public String getBookname() {
+        return bookname;
+    }
+
+    public void setBookname(String bookname) {
+        this.bookname = bookname;
+    }
+
+    public Date getLendTime() {
+        return lendTime;
+    }
+
+    public void setLendTime(Date lendTime) {
+        this.lendTime = lendTime;
+    }
+
+    public Date getReturnTime() {
+        return returnTime;
+    }
+
+    public void setReturnTime(Date returnTime) {
+        this.returnTime = returnTime;
+    }
+
+    public String getStatus() {
+        return status;
+    }
+
+    public void setStatus(String status) {
+        this.status = status;
+    }
+
+    public Integer getBorrownum() {
+        return borrownum;
+    }
+
+    public void setBorrownum(Integer borrownum) {
+        this.borrownum = borrownum;
+    }
 }

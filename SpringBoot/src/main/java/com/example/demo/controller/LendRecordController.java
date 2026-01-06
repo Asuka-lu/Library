@@ -23,22 +23,22 @@ import java.util.Map;
 @RequestMapping("/LendRecord")
 public class LendRecordController {
     @Resource
-    LendRecordMapper LendRecordMapper;
+    LendRecordMapper lendRecordMapper;
 
     @DeleteMapping("/{isbn}")
     public Result<?> delete(@PathVariable String isbn){
         Map<String,Object> map = new HashMap<>();
         map.put("isbn",isbn);
-        LendRecordMapper.deleteByMap(map);
+        lendRecordMapper.deleteByMap(map);
         return Result.success();
     }
     //删除一条记录
     @PostMapping("/deleteRecord")
-    public  Result<?> deleteRecord(@RequestBody LendRecord LendRecord){
+    public  Result<?> deleteRecord(@RequestBody LendRecord lendRecord){
         Map<String,Object> map = new HashMap<>();
-        map.put("isbn",LendRecord.getIsbn());
-        map.put("borrownum",LendRecord.getBorrownum());
-        LendRecordMapper.deleteByMap(map);
+        map.put("isbn",lendRecord.getIsbn());
+        map.put("borrownum",lendRecord.getBorrownum());
+        lendRecordMapper.deleteByMap(map);
         return Result.success();
     }
     @PostMapping("/deleteRecords")
@@ -49,13 +49,13 @@ public class LendRecordController {
             Map<String,Object> map = new HashMap<>();
             map.put("isbn",curRecord.getIsbn());
             map.put("borrownum",curRecord.getBorrownum());
-            LendRecordMapper.deleteByMap(map);
+            lendRecordMapper.deleteByMap(map);
         }
         return Result.success();
     }
     @PostMapping
     public Result<?> save(@RequestBody LendRecord LendRecord){
-        LendRecordMapper.insert(LendRecord);
+        lendRecordMapper.insert(LendRecord);
         return Result.success();
     }
     @GetMapping
@@ -74,7 +74,7 @@ public class LendRecordController {
         if(StringUtils.isNotBlank(search3)){
             wrappers.like(LendRecord::getReaderId,search3);
         }
-        Page<LendRecord> LendRecordPage =LendRecordMapper.selectPage(new Page<>(pageNum,pageSize), wrappers);
+        Page<LendRecord> LendRecordPage =lendRecordMapper.selectPage(new Page<>(pageNum,pageSize), wrappers);
         return Result.success(LendRecordPage);
     }
 
@@ -86,7 +86,7 @@ public class LendRecordController {
         lendrecord.setLendTime(lendRecord.getLendTime());
         lendrecord.setReturnTime(lendRecord.getReturnTime());
         lendrecord.setStatus(lendRecord.getStatus());
-        LendRecordMapper.update(lendrecord, updateWrapper);
+        lendRecordMapper.update(lendrecord, updateWrapper);
         return Result.success();
     }
     @PutMapping("/{lendTime}")
@@ -96,7 +96,7 @@ public class LendRecordController {
         LendRecord lendrecord = new LendRecord();
         lendrecord.setReturnTime(lendRecord.getReturnTime());
         lendrecord.setStatus(lendRecord.getStatus());
-        LendRecordMapper.update(lendrecord, updateWrapper);
+        lendRecordMapper.update(lendrecord, updateWrapper);
         return Result.success();
     }
 
