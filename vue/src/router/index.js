@@ -1,4 +1,4 @@
-import { createRouter, createWebHistory } from 'vue-router'
+import { createRouter, createWebHistory } from 'vue-router/dist/vue-router.esm-browser.js'
 import Layout from "../layout/Layout";
 
 const routes = [

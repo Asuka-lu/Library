@@ -80,8 +80,11 @@ export default {
             ElMessage.error("验证码错误")
             return
           }
-
-          request.post("user/login", this.form).then(res => {
+          const loginData = {
+            username: this.form.username,
+            password: this.form.password
+          };
+          request.post("user/login", loginData).then(res => {
             if (res.code == 0) {
               ElMessage.success("登录成功")
               sessionStorage.setItem("user",JSON.stringify(res.data))//缓存用户信息
