@@ -20,12 +20,13 @@ public class Book {
     private Integer id;
     private String isbn;
     private String name;
+    private String barcode;
     private BigDecimal price;
     private String author;
     private Integer borrownum;
     private String publisher;
+    private Integer stock;
     @JsonFormat(locale="zh",timezone="GMT+8", pattern="yyyy-MM-dd")
     private Date createTime;
     private String status;
-    private int code;
 }
