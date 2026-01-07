@@ -133,24 +133,20 @@ export default {
   },
 
   methods: {
-    // ✅ 从后端刷新用户信息（需要后端 GET /user/{id}）
+    // 从后端刷新用户信息
     async refreshUserFromServer(id) {
       try {
         const res = await request.get(`/user/${id}`);
         if (res.code === "0" || res.code === 0) {
           this.form = res.data;
-
-          // 合并写回 sessionStorage（避免覆盖 token 等字段）
           const old = JSON.parse(sessionStorage.getItem("user") || "{}");
           sessionStorage.setItem("user", JSON.stringify({ ...old, ...res.data }));
         }
       } catch (e) {
-        // 后端没这个接口或网络异常也没关系，至少能显示 sessionStorage 的信息
         console.warn("refreshUserFromServer failed:", e);
       }
     },
-
-    // ✅ 保存个人信息：保存成功后合并写回 sessionStorage（避免把 faceDescriptor/token 覆盖丢）
+    // 保存个人信息：保存成功后合并写回 sessionStorage（
     update() {
       request.put("/user", this.form).then((res) => {
         if (res.code === "0" || res.code === 0) {
@@ -165,8 +161,7 @@ export default {
         }
       });
     },
-
-    // ✅ 打开绑定/换绑人脸弹窗
+    // 打开绑定人脸弹窗
     async openFaceDialog() {
       if (!this.form.id) {
         ElMessage.error("用户信息不完整：缺少 id");
@@ -176,8 +171,7 @@ export default {
       await this.ensureModelsLoaded();
       await this.startCamera();
     },
-
-    // ✅ 加载模型（public/models）
+    // 加载模型
     async ensureModelsLoaded() {
       if (this.face.modelsLoaded) return;
       try {
@@ -193,8 +187,7 @@ export default {
         ElMessage.error("人脸模型加载失败：请检查 public/models 是否放置正确");
       }
     },
-
-    // ✅ 摄像头控制
+    // 摄像头控制
     async startCamera() {
       if (this.face.cameraOn) return;
       try {
@@ -226,8 +219,7 @@ export default {
       if (this.face.cameraOn) this.stopCamera();
       else await this.startCamera();
     },
-
-    // ✅ 采集 descriptor 并调用后端绑定接口（换绑也是覆盖 face_descriptor）
+    // 采集 descriptor 并调用后端绑定接口
     async captureAndBind() {
       await this.ensureModelsLoaded();
       if (!this.face.cameraOn) await this.startCamera();
@@ -268,8 +260,7 @@ export default {
 
         if (res.code === "0" || res.code === 0) {
           ElMessage.success(this.isFaceBound ? "换绑成功" : "绑定成功");
-
-          // ✅ 绑定/换绑成功后：从后端刷新一次用户信息，确保 faceDescriptor 非空 -> 页面立刻显示已绑定
+          //  绑定/换绑成功后,从后端刷新一次用户信息
           await this.refreshUserFromServer(this.form.id);
 
           this.face.dialogVisible = false;

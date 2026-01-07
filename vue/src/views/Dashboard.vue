@@ -17,8 +17,6 @@
     </el-row>
 
     <div id="myTimer" style="margin-left: 15px; font-weight: 550;"></div>
-
-    <!-- ✅ 热门推荐模块（按 borrownum 降序） -->
     <el-card class="rec-card" style="margin: 12px 10px 0 10px;">
       <template #header>
         <div class="rec-header">

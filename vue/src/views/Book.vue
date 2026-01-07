@@ -8,11 +8,13 @@
             <template #prefix><el-icon class="el-input__icon"><search /></el-icon></template>
           </el-input>
         </el-form-item>
+
         <el-form-item label="图书名称">
           <el-input v-model="search2" placeholder="请输入图书名称" clearable>
             <template #prefix><el-icon class="el-input__icon"><search /></el-icon></template>
           </el-input>
         </el-form-item>
+
         <el-form-item label="作者">
           <el-input v-model="search3" placeholder="请输入作者" clearable>
             <template #prefix><el-icon class="el-input__icon"><search /></el-icon></template>
@@ -57,46 +59,64 @@
     </div>
 
     <!-- 图书表格 -->
-    <el-table :data="tableData" stripe border="true" @selection-change="handleSelectionChange">
-      <el-table-column v-if="user.role == 1" type="selection" width="55" />
-      <el-table-column prop="isbn" label="图书编号" sortable />
-      <el-table-column prop="barcode" label="条形码" />
-      <el-table-column prop="name" label="图书名称" />
-      <el-table-column prop="price" label="价格" sortable />
-      <el-table-column prop="author" label="作者" />
-      <el-table-column prop="publisher" label="出版社" />
-      <el-table-column prop="createTime" label="出版时间" sortable />
-      <el-table-column prop="stock" label="库存" sortable />
+    <el-table
+        :data="tableData"
+        stripe
+        border
+        table-layout="fixed"
+        @selection-change="handleSelectionChange"
+    >
+      <el-table-column v-if="user.role == 1" type="selection" width="50" fixed="left" />
 
-      <el-table-column prop="status" label="状态">
+      <el-table-column prop="isbn" label="图书编号" width="150" sortable show-overflow-tooltip />
+      <el-table-column prop="barcode" label="条形码" width="150" show-overflow-tooltip />
+      <el-table-column prop="name" label="图书名称" min-width="180" show-overflow-tooltip />
+
+      <!-- ✅ 价格列更窄 -->
+      <el-table-column prop="price" label="价格" width="80" sortable align="center" />
+
+      <el-table-column prop="author" label="作者" width="110" show-overflow-tooltip />
+      <el-table-column prop="publisher" label="出版社" min-width="140" show-overflow-tooltip />
+
+      <el-table-column prop="createTime" label="出版时间" width="120" sortable align="center" />
+
+      <!-- ✅ 库存列窄一些 -->
+      <el-table-column prop="stock" label="库存" width="80" sortable align="center" />
+
+      <!-- 状态 -->
+      <el-table-column prop="status" label="状态" width="90" align="center">
         <template v-slot="scope">
           <el-tag v-if="Number(scope.row.stock) <= 0" type="warning">不可借</el-tag>
           <el-tag v-else type="success">可借</el-tag>
         </template>
       </el-table-column>
 
-      <el-table-column fixed="right" label="操作">
+      <!-- ✅ 操作列加宽 + 按钮不挤 -->
+      <el-table-column fixed="right" label="操作" width="170" align="center">
         <template v-slot="scope">
-          <!-- 管理员 -->
-          <el-button size="mini" @click="handleEdit(scope.row)" v-if="user.role == 1">修改</el-button>
-          <el-popconfirm title="确认删除?" @confirm="handleDelete(scope.row.id)" v-if="user.role == 1">
-            <template #reference>
-              <el-button type="danger" size="mini">删除</el-button>
-            </template>
-          </el-popconfirm>
+          <div class="op-row">
+            <!-- 管理员 -->
+            <el-button size="mini" @click="handleEdit(scope.row)" v-if="user.role == 1">修改</el-button>
 
-          <!-- ✅ 读者：不显示普通借阅按钮，只保留还书 -->
-          <el-popconfirm title="确认还书?" @confirm="returnBook(scope.row.isbn)" v-if="user.role == 2">
-            <template #reference>
-              <el-button
-                  type="danger"
-                  size="mini"
-                  :disabled="(isbnArray.indexOf(scope.row.isbn) === -1)"
-              >
-                还书
-              </el-button>
-            </template>
-          </el-popconfirm>
+            <el-popconfirm title="确认删除?" @confirm="handleDelete(scope.row.id)" v-if="user.role == 1">
+              <template #reference>
+                <el-button type="danger" size="mini">删除</el-button>
+              </template>
+            </el-popconfirm>
+
+            <!-- 读者：仅还书 -->
+            <el-popconfirm title="确认还书?" @confirm="returnBook(scope.row.isbn)" v-if="user.role == 2">
+              <template #reference>
+                <el-button
+                    type="danger"
+                    size="mini"
+                    :disabled="isbnArray.indexOf(scope.row.isbn) === -1"
+                >
+                  还书
+                </el-button>
+              </template>
+            </el-popconfirm>
+          </div>
         </template>
       </el-table-column>
     </el-table>
@@ -174,23 +194,39 @@
         </el-form-item>
 
         <el-form-item label="库存数量">
-          <el-input-number style="width: 80%" v-model="form.stock" :min="0" :step="1" controls-position="right" />
+          <el-input-number
+              style="width: 80%"
+              v-model="form.stock"
+              :min="0"
+              :step="1"
+              controls-position="right"
+          />
         </el-form-item>
 
         <el-form-item label="图书名称">
           <el-input style="width: 80%" v-model="form.name"></el-input>
         </el-form-item>
+
         <el-form-item label="价格">
           <el-input style="width: 80%" v-model="form.price"></el-input>
         </el-form-item>
+
         <el-form-item label="作者">
           <el-input style="width: 80%" v-model="form.author"></el-input>
         </el-form-item>
+
         <el-form-item label="出版社">
           <el-input style="width: 80%" v-model="form.publisher"></el-input>
         </el-form-item>
+
         <el-form-item label="出版时间">
-          <el-date-picker value-format="YYYY-MM-DD" type="date" style="width: 80%" clearable v-model="form.createTime" />
+          <el-date-picker
+              value-format="YYYY-MM-DD"
+              type="date"
+              style="width: 80%"
+              clearable
+              v-model="form.createTime"
+          />
         </el-form-item>
       </el-form>
       <template #footer>
@@ -213,23 +249,39 @@
         </el-form-item>
 
         <el-form-item label="库存数量">
-          <el-input-number style="width: 80%" v-model="form.stock" :min="0" :step="1" controls-position="right" />
+          <el-input-number
+              style="width: 80%"
+              v-model="form.stock"
+              :min="0"
+              :step="1"
+              controls-position="right"
+          />
         </el-form-item>
 
         <el-form-item label="图书名称">
           <el-input style="width: 80%" v-model="form.name"></el-input>
         </el-form-item>
+
         <el-form-item label="价格">
           <el-input style="width: 80%" v-model="form.price"></el-input>
         </el-form-item>
+
         <el-form-item label="作者">
           <el-input style="width: 80%" v-model="form.author"></el-input>
         </el-form-item>
+
         <el-form-item label="出版社">
           <el-input style="width: 80%" v-model="form.publisher"></el-input>
         </el-form-item>
+
         <el-form-item label="出版时间">
-          <el-date-picker value-format="YYYY-MM-DD" type="date" style="width: 80%" clearable v-model="form.createTime" />
+          <el-date-picker
+              value-format="YYYY-MM-DD"
+              type="date"
+              style="width: 80%"
+              clearable
+              v-model="form.createTime"
+          />
         </el-form-item>
       </el-form>
       <template #footer>
@@ -239,7 +291,6 @@
         </span>
       </template>
     </el-dialog>
-
   </div>
 </template>
 
@@ -456,7 +507,6 @@ export default {
 
         if (!this.scan.reader) this.scan.reader = new BrowserMultiFormatReader();
 
-        // 持续扫描，识别到一次就借阅
         this.scan.controls = await this.scan.reader.decodeFromVideoDevice(
             undefined,
             video,
@@ -519,7 +569,7 @@ export default {
       }
     },
 
-    // ✅ 还书：保留
+    // ✅ 还书
     async returnBook(isbn) {
       const res = await request.post("/borrow/return", {
         userId: this.user.id,
@@ -548,5 +598,15 @@ export default {
   width: 100%;
   height: 260px;
   object-fit: cover;
+}
+
+.op-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  justify-content: center;
+}
+.op-row :deep(.el-button) {
+  border-radius: 10px;
 }
 </style>

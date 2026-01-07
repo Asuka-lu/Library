@@ -2,15 +2,12 @@
   <div class="login-container">
     <div class="login-page">
       <h2 class="title" style="margin-bottom: 12px">人脸登录</h2>
-
       <div style="margin-bottom: 10px; font-size: 13px; color: #666;">
         请正对摄像头，保持光线充足，点击“开始识别”。
       </div>
-
       <div class="video-box">
         <video ref="videoEl" autoplay muted playsinline class="video"></video>
       </div>
-
       <div style="margin-top: 12px; display: flex; gap: 10px;">
         <el-button type="primary" style="flex: 1" :loading="loading" @click="doFaceLogin">
           开始识别
@@ -19,12 +16,10 @@
           {{ cameraOn ? "关闭摄像头" : "打开摄像头" }}
         </el-button>
       </div>
-
       <div style="margin-top: 10px; display:flex; justify-content: space-between;">
         <el-button type="text" @click="$router.push('/login')">返回账号登录</el-button>
         <el-button type="text" @click="$router.push('/register')">前往注册 >></el-button>
       </div>
-
       <div v-if="status" style="margin-top: 6px; font-size: 12px; color: #999;">
         {{ status }}
       </div>
@@ -55,7 +50,7 @@ export default {
     this.stopCamera();
   },
   methods: {
-    // 等待 video 真正有画面（否则 detectSingleFace 容易卡/慢）
+    // 等待 video 真正有画面
     waitVideoReady(video, timeoutMs = 3000) {
       return new Promise((resolve, reject) => {
         const start = Date.now();
@@ -101,7 +96,7 @@ export default {
         const video = this.$refs.videoEl;
         video.srcObject = stream;
 
-        // ✅ 等待 metadata 并强制播放（提升稳定性）
+        // 等待 metadata 并强制播放
         await new Promise((resolve) => {
           video.onloadedmetadata = () => resolve();
         });
@@ -149,11 +144,11 @@ export default {
         this.loading = true;
         this.status = "正在识别人脸...";
 
-        // ✅ 关键：等 video 真正有帧数据
+        // 等 video 真正有帧数据
         await this.waitVideoReady(video, 3000);
 
         const options = new faceapi.TinyFaceDetectorOptions({
-          inputSize: 160,       // ✅ 更快更稳（224 有些机器很慢）
+          inputSize: 160,
           scoreThreshold: 0.5,
         });
 
@@ -170,17 +165,17 @@ export default {
 
         const descriptor = Array.from(detection.descriptor);
 
-        // ✅ 调后端刷脸登录
+        // 调后端刷脸登录
         const res = await request.post("/user/face/login", { descriptor });
 
-        // ✅ 兼容 code 为 0 或 "0"
+        // 兼容 code 为 0 或 "0"
         const ok = res && (res.code === 0 || res.code === "0");
         if (ok && res.data) {
           ElMessage.success("刷脸登录成功");
           sessionStorage.setItem("user", JSON.stringify(res.data));
           this.stopCamera();
 
-          // ✅ 跳转首页（和你现有登录一致）
+          // 跳转首页（和你现有登录一致）
           this.$router.push("/dashboard");
         } else {
           ElMessage.error((res && res.msg) ? res.msg : "刷脸登录失败");

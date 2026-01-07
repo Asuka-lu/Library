@@ -37,7 +37,6 @@
       </el-popconfirm>
     </div>
     <!-- 数据字段-->
-
     <el-table :data="tableData" stripe border="true" @selection-change="handleSelectionChange">
       <el-table-column v-if="user.role ==1"
                        type="selection"
@@ -180,8 +179,7 @@ export default defineComponent({
           } else {
             ElMessage.error(res.msg)
           }
-
-          this.load() //不知道为啥，更新必须要放在这里面
+          this.load()
           this.dialogVisible = false
         })
       }
@@ -287,6 +285,5 @@ export default defineComponent({
 
     }
   },
-
 })
 </script>
