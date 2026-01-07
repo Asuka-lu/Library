@@ -30,7 +30,14 @@
           人脸登录
         </el-button>
       </el-form-item>
-      <el-form-item><el-button type="text" @click="$router.push('/register')">前往注册 >> </el-button></el-form-item>
+      <el-button type="primary" plain @click="$router.push('/face-return')">
+        扫脸还书
+      </el-button>
+      <el-form-item>
+        <el-button type="text" @click="$router.push('/register')">
+          前往注册 >>
+        </el-button>
+      </el-form-item>
     </el-form>
 </div>
 

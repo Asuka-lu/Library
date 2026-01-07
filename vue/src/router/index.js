@@ -61,6 +61,11 @@ const routes = [
         component: () => import("@/views/FaceLogin")
   },
   {
+        path: '/face-return',
+        name: 'FaceReturn',
+        component: () => import('../views/FaceReturn.vue')
+  },
+  {
     path: '/register',
     name: 'Register',
     component: () => import("@/views/Register")
