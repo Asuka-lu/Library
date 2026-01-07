@@ -42,13 +42,23 @@ const routes = [
         path: 'bookwithuser',
         name: 'BookWithUser',
         component: () => import("@/views/BookWithUser")
-      }
+      },
+        {
+            path: 'model-test',
+            name: 'ModelTest',
+            component: () => import("@/views/ModelTest.vue")
+        }
     ]
   },
   {
     path: '/login',
     name: 'Login',
     component: () => import("@/views/Login")
+  },
+  {
+        path: '/face-login',
+        name: 'FaceLogin',
+        component: () => import("@/views/FaceLogin")
   },
   {
     path: '/register',
