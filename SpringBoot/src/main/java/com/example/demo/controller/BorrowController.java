@@ -64,7 +64,7 @@ public class BorrowController {
             return Result.error("400", "你已借阅过该书，请先归还后再借");
         }
 
-        // 4) 限制最多借 5 本（你前端也做了，后端兜底）
+        // 4) 限制最多借 5 本（前端也做了，后端兜底）
         Long cnt = bookWithUserMapper.selectCount(
                 Wrappers.<BookWithUser>lambdaQuery().eq(BookWithUser::getId, userId)
         );
@@ -136,46 +136,79 @@ public class BorrowController {
 
     // 还书
     // 入参：{ userId, isbn }
+    // ✅ 注意：这里的 isbn 可能实际传的是 barcode / 二维码内容(URL)
     @PostMapping("/return")
     @Transactional(rollbackFor = Exception.class)
     public Result<?> returnBook(@RequestBody Map<String, Object> req) {
         Integer userId = parseInt(req.get("userId"));
-        String isbn = req.get("isbn") == null ? null : String.valueOf(req.get("isbn")).trim();
+        String input = req.get("isbn") == null ? null : String.valueOf(req.get("isbn")).trim();
 
         if (userId == null) return Result.error("400", "缺少 userId");
-        if (isbn == null || isbn.isEmpty()) return Result.error("400", "缺少 isbn");
+        if (input == null || input.isEmpty()) return Result.error("400", "缺少 isbn");
 
-        Book book = bookMapper.selectOne(Wrappers.<Book>lambdaQuery().eq(Book::getIsbn, isbn));
-        if (book == null) return Result.error("404", "图书不存在");
+        Book book = bookMapper.selectOne(Wrappers.<Book>lambdaQuery().eq(Book::getBarcode, input));
+        if (book == null) {
+            book = bookMapper.selectOne(Wrappers.<Book>lambdaQuery().eq(Book::getIsbn, input));
+        }
+        if (book == null) return Result.error("404", "未找到该码对应图书");
 
+        String realIsbn = book.getIsbn();
         Date now = new Date();
+        Long borrowedCnt = bookWithUserMapper.selectCount(
+                Wrappers.<BookWithUser>lambdaQuery()
+                        .eq(BookWithUser::getId, userId)
+                        .eq(BookWithUser::getIsbn, realIsbn)
+        );
+        if (borrowedCnt == null || borrowedCnt <= 0) {
+            return Result.error("400", "你未借阅该书，无法归还");
+        }
 
-        // 1) 库存 +1，状态=可借
+        // 4) 库存 +1，状态=可借
         int stock = book.getStock() == null ? 0 : book.getStock();
         int newStock = stock + 1;
 
-        UpdateWrapper<Book> bw = new UpdateWrapper<>();
-        bw.eq("id", book.getId())
-                .set("stock", newStock)
-                .set("status", "1");
-        bookMapper.update(null, bw);
+        bookMapper.update(null,
+                new UpdateWrapper<Book>()
+                        .eq("id", book.getId())
+                        .set("stock", newStock)
+                        .set("status", "1")
+        );
 
-        // 2) lend_record：把该用户该书的“未归还”记录置为已归还
-        UpdateWrapper<LendRecord> lrw = new UpdateWrapper<>();
-        lrw.eq("reader_id", userId)
-                .eq("isbn", isbn)
-                .eq("status", "0")
-                .set("status", "1")
-                .set("return_time", now);
-        lendRecordMapper.update(null, lrw);
+        // 5) lend_record：只更新“最近一条未归还记录”（避免多条一起改）
+        LendRecord lastUnreturned = lendRecordMapper.selectOne(
+                Wrappers.<LendRecord>lambdaQuery()
+                        .eq(LendRecord::getReaderId, userId)
+                        .eq(LendRecord::getIsbn, realIsbn)
+                        .eq(LendRecord::getStatus, "0")
+                        .orderByDesc(LendRecord::getLendTime)
+                        .last("limit 1")
+        );
+        if (lastUnreturned != null) {
+            lendRecordMapper.update(null,
+                    new UpdateWrapper<LendRecord>()
+                            .eq("reader_id", userId)
+                            .eq("isbn", realIsbn)
+                            .eq("lend_time", lastUnreturned.getLendTime())
+                            .eq("status", "0")
+                            .set("status", "1")
+                            .set("return_time", now)
+            );
+        }
 
-        // 3) bookwithuser：删除当前借阅中记录
+        // 6) bookwithuser：删除当前借阅中记录
         Map<String, Object> map = new HashMap<>();
         map.put("id", userId);
-        map.put("isbn", isbn);
+        map.put("isbn", realIsbn);
         bookWithUserMapper.deleteByMap(map);
 
-        return Result.success();
+        // ✅ 可选：返回一点数据给前端提示
+        Map<String, Object> data = new HashMap<>();
+        data.put("isbn", realIsbn);
+        data.put("barcode", book.getBarcode());
+        data.put("name", book.getName());
+        data.put("stock", newStock);
+
+        return Result.success(data);
     }
 
     private Integer parseInt(Object o) {
