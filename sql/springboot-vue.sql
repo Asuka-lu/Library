@@ -23,7 +23,8 @@ INSERT INTO `book` VALUES
 (3, '25213121232',   '25213121232',   'JAVA WEB开发基础', NULL,  NULL,  NULL,           NULL,        '1', 0, 1),
 (4, '3213123123',    '3213123123',    '操作系统',     NULL,  NULL,  NULL,           NULL,        '1', 0, 0),
 (5, '345621212321',  '345621212321',  '伊索寓言',     NULL,  NULL,  NULL,           NULL,        '1', 0, 0),
-(6, '54112312321',   '54112312321',   '格林童话',     NULL,  NULL,  NULL,           NULL,        '1', 0, 1);
+(6, '54112312321',   '54112312321',   '格林童话',     NULL,  NULL,  NULL,           NULL,        '1', 0, 1),
+(7, '54112312323',   'http://weixin.qq.com/r/tzkZAXHENyxIrTVi92yl',   '运筹学',     NULL,  NULL,  NULL,           NULL,        '1', 0, 1);
 
 DROP TABLE IF EXISTS `bookwithuser`;
 CREATE TABLE `bookwithuser`  (
@@ -67,4 +68,4 @@ INSERT INTO `user` VALUES
 (2, 'user1', '111', '陈姜胜', NULL, NULL, NULL, 2, NULL),
 (3, 'user2', '111', '周星宇', NULL, NULL, NULL, 2, NULL),
 (4, 'user3', '111', '刁翔宇', NULL, NULL, NULL, 2, NULL),
-(5, 'user3', '111', '王皓民', NULL, NULL, NULL, 2, NULL);
+(5, 'user4', '111', '王皓民', NULL, NULL, NULL, 2, NULL);
